@@ -1,0 +1,20 @@
+{
+  "name": "Tarjetas Navideñas",
+  "short_name": "Navidad",
+  "description": "Crea, personaliza y comparte tarjetas navideñas.",
+  "lang": "es",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#1a0f2e",
+  "theme_color": "#0d472f",
+  "icons": [
+    {
+      "src": "icons/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

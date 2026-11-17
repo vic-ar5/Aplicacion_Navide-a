@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0d472f">
+  <title>Tarjetas Navideñas</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="icons/icon.svg">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <h1>🎄 Tarjetas Navideñas</h1>
+    <button id="btnInstall" class="btn btn-ghost hidden">📲 Instalar</button>
+  </header>
+
+  <main class="layout">
+    <section class="preview-panel">
+      <canvas id="card" width="1080" height="1350" aria-label="Vista previa de la tarjeta"></canvas>
+      <div class="preview-actions">
+        <button id="btnDownloadPng" class="btn btn-primary">⬇️ PNG</button>
+        <button id="btnDownloadJpg" class="btn btn-primary">⬇️ JPG</button>
+        <button id="btnShare" class="btn btn-primary">🔗 Compartir</button>
+      </div>
+    </section>
+
+    <section class="controls-panel">
+      <fieldset>
+        <legend>Plantilla</legend>
+        <div id="templateList" class="template-list"></div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Textos</legend>
+        <label>Título
+          <input id="txtTitle" type="text" maxlength="40" value="Feliz Navidad">
+        </label>
+        <label>Mensaje
+          <textarea id="txtMessage" rows="4" maxlength="200">Que esta Navidad traiga paz, amor y alegría a tu hogar. ¡Felices fiestas!</textarea>
+        </label>
+        <div class="row">
+          <label>Para
+            <input id="txtTo" type="text" maxlength="30" placeholder="Nombre del destinatario">
+          </label>
+          <label>De
+            <input id="txtFrom" type="text" maxlength="30" placeholder="Tu nombre">
+          </label>
+        </div>
+        <button id="btnRandomMsg" class="btn btn-ghost">✨ Mensaje aleatorio</button>
+      </fieldset>
+
+      <fieldset>
+        <legend>Colores</legend>
+        <div class="row">
+          <label>Texto
+            <input id="colorText" type="color" value="#ffffff">
+          </label>
+          <label>Acento
+            <input id="colorAccent" type="color" value="#ffd54a">
+          </label>
+        </div>
+        <div class="row">
+          <label>Fondo
+            <input id="colorBg" type="color" value="#8f1d1d">
+          </label>
+          <label>Tamaño texto
+            <input id="txtSize" type="range" min="0.8" max="1.4" step="0.05" value="1">
+          </label>
+        </div>
+      </fieldset>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <small>Funciona sin conexión · Instalable como app</small>
+  </footer>
+
+  <script src="js/messages.js"></script>
+  <script src="js/templates.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
