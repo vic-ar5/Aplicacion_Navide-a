@@ -114,6 +114,8 @@ body {
 
 .hint { color: var(--cream); font-size: .85rem; text-shadow: 0 1px 3px rgba(0,0,0,.5); }
 
+.hint-in-panel { color: var(--muted); font-size: .82rem; margin: 0 0 12px; }
+
 .preview-actions {
   display: flex;
   gap: 10px;
