@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="#0d472f">
+  <meta name="theme-color" content="#a31d1d">
   <title>Tarjetas Navideñas</title>
   <link rel="manifest" href="manifest.json">
   <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
@@ -11,70 +11,119 @@
   <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
+  <div id="snowfall" aria-hidden="true"></div>
+
   <header class="topbar">
-    <h1>🎄 Tarjetas Navideñas</h1>
-    <button id="btnInstall" class="btn btn-ghost hidden">📲 Instalar</button>
+    <div class="garland" aria-hidden="true"></div>
+    <div class="topbar-inner">
+      <h1>🎄 Tarjetas Navideñas 🎄</h1>
+      <button id="btnInstall" class="btn btn-gold hidden">📲 Instalar</button>
+    </div>
   </header>
 
   <main class="layout">
     <section class="preview-panel">
-      <canvas id="card" width="1080" height="1350" aria-label="Vista previa de la tarjeta"></canvas>
+      <div class="card-frame">
+        <span class="corner tl">❄</span>
+        <span class="corner tr">❄</span>
+        <span class="corner bl">❄</span>
+        <span class="corner br">❄</span>
+        <canvas id="card" width="1080" height="1350" aria-label="Vista previa de la tarjeta"></canvas>
+      </div>
+      <p class="hint">💡 Doble clic sobre la tarjeta para escribir · arrastra los textos</p>
       <div class="preview-actions">
-        <button id="btnDownloadPng" class="btn btn-primary">⬇️ PNG</button>
-        <button id="btnDownloadJpg" class="btn btn-primary">⬇️ JPG</button>
-        <button id="btnShare" class="btn btn-primary">🔗 Compartir</button>
+        <button id="btnDownloadPng" class="btn btn-gold">⬇️ PNG</button>
+        <button id="btnDownloadJpg" class="btn btn-gold">⬇️ JPG</button>
+        <button id="btnShare" class="btn btn-gold">🔗 Compartir</button>
       </div>
     </section>
 
     <section class="controls-panel">
-      <fieldset>
-        <legend>Plantilla</legend>
-        <div id="templateList" class="template-list"></div>
-      </fieldset>
+      <nav class="tabs" role="tablist">
+        <button class="tab active" data-tab="template">🎄 Plantilla</button>
+        <button class="tab" data-tab="messages">✉️ Mensajes</button>
+        <button class="tab" data-tab="letters">🔤 Letras</button>
+      </nav>
 
-      <fieldset>
-        <legend>Textos</legend>
-        <label>Título
-          <input id="txtTitle" type="text" maxlength="40" value="Feliz Navidad">
-        </label>
-        <label>Mensaje
-          <textarea id="txtMessage" rows="4" maxlength="200">Que esta Navidad traiga paz, amor y alegría a tu hogar. ¡Felices fiestas!</textarea>
-        </label>
-        <div class="row">
-          <label>Para
-            <input id="txtTo" type="text" maxlength="30" placeholder="Nombre del destinatario">
-          </label>
-          <label>De
-            <input id="txtFrom" type="text" maxlength="30" placeholder="Tu nombre">
-          </label>
-        </div>
-        <button id="btnRandomMsg" class="btn btn-ghost">✨ Mensaje aleatorio</button>
-      </fieldset>
+      <div id="tab-template" class="tab-content active">
+        <fieldset>
+          <legend>Elige una plantilla</legend>
+          <div id="templateList" class="template-list"></div>
+        </fieldset>
+      </div>
 
-      <fieldset>
-        <legend>Colores</legend>
-        <div class="row">
-          <label>Texto
-            <input id="colorText" type="color" value="#ffffff">
+      <div id="tab-messages" class="tab-content">
+        <fieldset>
+          <legend>Dedicatoria</legend>
+          <label>Título
+            <input id="txtTitle" type="text" maxlength="40" value="Feliz Navidad">
           </label>
-          <label>Acento
-            <input id="colorAccent" type="color" value="#ffd54a">
+          <label>Mensaje
+            <textarea id="txtMessage" rows="4" maxlength="200">Que esta Navidad traiga paz, amor y alegría a tu hogar. ¡Felices fiestas!</textarea>
           </label>
-        </div>
-        <div class="row">
-          <label>Fondo
-            <input id="colorBg" type="color" value="#8f1d1d">
-          </label>
-          <label>Tamaño texto
+          <div class="row">
+            <label>Para
+              <input id="txtTo" type="text" maxlength="30" placeholder="Nombre del destinatario">
+            </label>
+            <label>De
+              <input id="txtFrom" type="text" maxlength="30" placeholder="Tu nombre">
+            </label>
+          </div>
+          <div class="row">
+            <label>Fuente del título
+              <select id="selTitleFont"></select>
+            </label>
+            <label>Fuente del mensaje
+              <select id="selMsgFont"></select>
+            </label>
+          </div>
+          <button id="btnRandomMsg" class="btn btn-green">✨ Mensaje aleatorio</button>
+        </fieldset>
+
+        <fieldset>
+          <legend>Colores de la tarjeta</legend>
+          <div class="row">
+            <label>Texto <input id="colorText" type="color" value="#ffffff"></label>
+            <label>Acento <input id="colorAccent" type="color" value="#ffd54a"></label>
+            <label>Fondo <input id="colorBg" type="color" value="#8f1d1d"></label>
+          </div>
+          <label>Tamaño del texto
             <input id="txtSize" type="range" min="0.8" max="1.4" step="0.05" value="1">
           </label>
-        </div>
-      </fieldset>
+        </fieldset>
+      </div>
+
+      <div id="tab-letters" class="tab-content">
+        <p class="hint">✍️ Doble clic en la tarjeta para añadir texto, o usa el botón. Toca un texto para editarlo y arrástralo para moverlo.</p>
+        <fieldset id="letterEditor" class="hidden">
+          <legend>Texto seleccionado</legend>
+          <label>Contenido
+            <textarea id="txtCustom" rows="2" maxlength="120">Texto</textarea>
+          </label>
+          <div class="row">
+            <label>Fuente
+              <select id="selCustomFont"></select>
+            </label>
+            <label>Color
+              <input id="colorCustom" type="color" value="#ffffff">
+            </label>
+          </div>
+          <label>Tamaño
+            <input id="customSize" type="range" min="24" max="160" step="2" value="48">
+          </label>
+          <div class="row">
+            <button id="btnBold" class="btn btn-toggle">B</button>
+            <button id="btnItalic" class="btn btn-toggle">I</button>
+            <button id="btnDeleteText" class="btn btn-red">🗑️ Eliminar</button>
+          </div>
+        </fieldset>
+        <button id="btnAddText" class="btn btn-green">➕ Agregar texto a la tarjeta</button>
+      </div>
     </section>
   </main>
 
   <footer class="footer">
-    <small>Funciona sin conexión · Instalable como app</small>
+    <small>🎅 Funciona sin conexión · Instalable como app · Hecho con ❤️ navideño</small>
   </footer>
 
   <script src="js/messages.js"></script>
