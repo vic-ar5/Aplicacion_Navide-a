@@ -38,6 +38,9 @@ const els = {
   customFont: document.getElementById("selCustomFont"),
   customColor: document.getElementById("colorCustom"),
   customSize: document.getElementById("customSize"),
+  btnAlignLeft: document.getElementById("btnAlignLeft"),
+  btnAlignCenter: document.getElementById("btnAlignCenter"),
+  btnAlignRight: document.getElementById("btnAlignRight"),
   btnBold: document.getElementById("btnBold"),
   btnItalic: document.getElementById("btnItalic"),
   btnDelete: document.getElementById("btnDeleteText")
@@ -112,7 +115,7 @@ document.querySelectorAll(".tab").forEach(tab => {
   });
 });
 
-function wrapText(ctx, text, maxWidth) {
+function wrapText(text, maxWidth) {
   const words = text.split(/\s+/).filter(Boolean);
   const lines = [];
   let line = "";
@@ -134,30 +137,17 @@ function drawCenterLines(lines, centerX, startY, lineH) {
 }
 
 function drawCustomTexts() {
-  state.texts.forEach((t, i) => {
+  state.texts.forEach(t => {
     ctx.save();
-    ctx.textAlign = "center";
+    ctx.textAlign = t.align;
     ctx.textBaseline = "middle";
     ctx.font =
       (t.italic ? "italic " : "") + (t.bold ? "700 " : "400 ") +
       t.size + 'px "' + t.font + '", sans-serif';
     ctx.fillStyle = t.color;
-    if (i === selected) {
-      ctx.shadowColor = "rgba(0,0,0,.6)";
-      ctx.shadowBlur = 12;
-    } else {
-      ctx.shadowColor = "rgba(0,0,0,.35)";
-      ctx.shadowBlur = 4;
-    }
+    ctx.shadowColor = "rgba(0,0,0,.35)";
+    ctx.shadowBlur = 4;
     ctx.fillText(t.text, t.x * W, t.y * H);
-    if (i === selected) {
-      const w = ctx.measureText(t.text).width;
-      ctx.shadowBlur = 0;
-      ctx.strokeStyle = state.accent;
-      ctx.lineWidth = 4;
-      ctx.setLineDash([14, 10]);
-      ctx.strokeRect(t.x * W - w / 2 - 16, t.y * H - t.size * 0.8, w + 32, t.size * 1.6);
-    }
     ctx.restore();
   });
 }
@@ -184,7 +174,7 @@ function render() {
 
   ctx.fillStyle = state.text;
   ctx.font = (46 * s) + 'px "' + state.msgFont + '", sans-serif';
-  const lines = wrapText(ctx, state.message, W * 0.74);
+  const lines = wrapText(state.message, W * 0.74);
   drawCenterLines(lines, W / 2, H * 0.34, 64 * s);
 
   if (state.from) {
@@ -197,12 +187,18 @@ function render() {
   drawCustomTexts();
 }
 
+function activeText() {
+  if (!state.texts.length) return null;
+  if (selected < 0 || selected >= state.texts.length) selected = state.texts.length - 1;
+  return state.texts[selected];
+}
+
 function syncEditor() {
-  if (selected < 0 || !state.texts[selected]) {
+  const t = activeText();
+  if (!t) {
     els.letterEditor.classList.add("hidden");
     return;
   }
-  const t = state.texts[selected];
   els.letterEditor.classList.remove("hidden");
   if (document.activeElement !== els.customText) els.customText.value = t.text;
   els.customFont.value = t.font;
@@ -210,7 +206,22 @@ function syncEditor() {
   els.customSize.value = t.size;
   els.btnBold.classList.toggle("on", !!t.bold);
   els.btnItalic.classList.toggle("on", !!t.italic);
+  els.btnAlignLeft.classList.toggle("on", t.align === "left");
+  els.btnAlignCenter.classList.toggle("on", t.align === "center");
+  els.btnAlignRight.classList.toggle("on", t.align === "right");
 }
+
+function setAlign(align) {
+  const t = activeText();
+  if (!t) return;
+  t.align = align;
+  syncEditor();
+  render();
+}
+
+els.btnAlignLeft.addEventListener("click", () => setAlign("left"));
+els.btnAlignCenter.addEventListener("click", () => setAlign("center"));
+els.btnAlignRight.addEventListener("click", () => setAlign("right"));
 
 function selectText(i) {
   selected = i;
@@ -223,9 +234,10 @@ function addText(x, y) {
     text: "Texto nuevo",
     x: x / W,
     y: y / H,
-    font: FONTS[0][0],
-    size: 48,
-    color: state.accent,
+    font: els.customFont.value,
+    size: parseInt(els.customSize.value, 10),
+    color: els.customColor.value,
+    align: "center",
     bold: false,
     italic: false
   };
@@ -245,16 +257,21 @@ function canvasPos(e) {
   };
 }
 
+function textBounds(t) {
+  ctx.font = (t.bold ? "700 " : "400 ") + t.size + 'px "' + t.font + '", sans-serif';
+  const w = ctx.measureText(t.text).width;
+  const cx = t.x * W;
+  let x0;
+  if (t.align === "left") x0 = cx;
+  else if (t.align === "right") x0 = cx - w;
+  else x0 = cx - w / 2;
+  return { x0, x1: x0 + w, y0: t.y * H - t.size * 0.8, y1: t.y * H + t.size * 0.8 };
+}
+
 function hitTest(pos) {
   for (let i = state.texts.length - 1; i >= 0; i--) {
-    const t = state.texts[i];
-    ctx.font = (t.bold ? "700 " : "400 ") + t.size + 'px "' + t.font + '", sans-serif';
-    const w = ctx.measureText(t.text).width;
-    const cx = t.x * W, cy = t.y * H;
-    if (
-      pos.x >= cx - w / 2 - 12 && pos.x <= cx + w / 2 + 12 &&
-      pos.y >= cy - t.size * 0.8 && pos.y <= cy + t.size * 0.8
-    ) return i;
+    const b = textBounds(state.texts[i]);
+    if (pos.x >= b.x0 - 12 && pos.x <= b.x1 + 12 && pos.y >= b.y0 && pos.y <= b.y1) return i;
   }
   return -1;
 }
@@ -263,10 +280,9 @@ canvas.addEventListener("pointerdown", e => {
   const pos = canvasPos(e);
   const hit = hitTest(pos);
   if (hit >= 0) {
-    dragging = hit;
-    dragMoved = false;
     const t = state.texts[hit];
     dragging = { index: hit, dx: pos.x - t.x * W, dy: pos.y - t.y * H };
+    dragMoved = false;
     canvas.classList.add("picking");
     canvas.setPointerCapture(e.pointerId);
     selectText(hit);
@@ -302,62 +318,66 @@ canvas.addEventListener("pointerup", e => {
 
 canvas.addEventListener("dblclick", e => {
   const pos = canvasPos(e);
-  if (hitTest(pos) < 0) {
+  const hit = hitTest(pos);
+  if (hit < 0) {
     addText(pos.x, pos.y);
-    document.querySelector('[data-tab="letters"]').click();
   } else {
-    selectText(hitTest(pos));
+    selectText(hit);
     els.customText.focus();
   }
 });
 
 els.addText.addEventListener("click", () => {
   addText(W / 2, H / 2);
-  document.querySelector('[data-tab="letters"]').click();
 });
 
 els.customText.addEventListener("input", () => {
-  if (selected < 0) return;
-  state.texts[selected].text = els.customText.value;
+  const t = activeText();
+  if (!t) return;
+  t.text = els.customText.value;
   render();
 });
 
 els.customFont.addEventListener("change", () => {
-  if (selected < 0) return;
-  state.texts[selected].font = els.customFont.value;
+  const t = activeText();
+  if (!t) return;
+  t.font = els.customFont.value;
   render();
 });
 
 els.customColor.addEventListener("input", () => {
-  if (selected < 0) return;
-  state.texts[selected].color = els.customColor.value;
+  const t = activeText();
+  if (!t) return;
+  t.color = els.customColor.value;
   render();
 });
 
 els.customSize.addEventListener("input", () => {
-  if (selected < 0) return;
-  state.texts[selected].size = parseInt(els.customSize.value, 10);
+  const t = activeText();
+  if (!t) return;
+  t.size = parseInt(els.customSize.value, 10);
   render();
 });
 
 els.btnBold.addEventListener("click", () => {
-  if (selected < 0) return;
-  const t = state.texts[selected];
+  const t = activeText();
+  if (!t) return;
   t.bold = !t.bold;
   syncEditor();
   render();
 });
 
 els.btnItalic.addEventListener("click", () => {
-  if (selected < 0) return;
-  const t = state.texts[selected];
+  const t = activeText();
+  if (!t) return;
   t.italic = !t.italic;
   syncEditor();
   render();
 });
 
 els.btnDelete.addEventListener("click", () => {
-  if (selected < 0) return;
+  const t = activeText();
+  if (!t) return;
   state.texts.splice(selected, 1);
   selected = -1;
   syncEditor();

@@ -94,10 +94,10 @@
       </div>
 
       <div id="tab-letters" class="tab-content">
-        <p class="hint">✍️ Doble clic en la tarjeta para añadir texto, o usa el botón. Toca un texto para editarlo y arrástralo para moverlo.</p>
+        <p class="hint">✍️ Doble clic en la tarjeta para escribir. Toca un texto para editarlo y arrástralo para moverlo.</p>
         <fieldset id="letterEditor" class="hidden">
-          <legend>Texto seleccionado</legend>
-          <label>Contenido
+          <legend>Estilo de letra</legend>
+          <label>Texto
             <textarea id="txtCustom" rows="2" maxlength="120">Texto</textarea>
           </label>
           <div class="row">
@@ -111,7 +111,13 @@
           <label>Tamaño
             <input id="customSize" type="range" min="24" max="160" step="2" value="48">
           </label>
-          <div class="row">
+          <label>Alineación</label>
+          <div class="align-row">
+            <button id="btnAlignLeft" class="btn btn-align">⬅ Izquierda</button>
+            <button id="btnAlignCenter" class="btn btn-align on">⬌ Centrado</button>
+            <button id="btnAlignRight" class="btn btn-align">Derecha ➡</button>
+          </div>
+          <div class="row" style="margin-top:10px">
             <button id="btnBold" class="btn btn-toggle">B</button>
             <button id="btnItalic" class="btn btn-toggle">I</button>
             <button id="btnDeleteText" class="btn btn-red">🗑️ Eliminar</button>
